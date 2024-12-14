@@ -10,7 +10,7 @@ function App() {
   // Methode pour reccuperer les donnée
   const getFormations = () => {
 
-    axios.get('http://localhost:3000/api/formation')
+    axios.get('http://localhost:4000/api/formation')
     .then(res => {
        setMesFomations(res.data);
     })
@@ -21,7 +21,7 @@ function App() {
   // Méthode pour ajouter une formation
   const addFormation = (newFormation) => {
     axios
-      .post('http://localhost:3000/api/formation', newFormation)
+      .post('http://localhost:4000/api/formation', newFormation)
       .then((res) => {
         console.log("Formation ajoutée :", res.data);
         // Rafraîchir les formations après ajout
@@ -36,7 +36,7 @@ function App() {
   const updateFormation = async (id, updatedFormation) => {
     try {
         // Remplacer `id` par l'identifiant de la formation à mettre à jour
-        const response = await axios.put(`http://localhost:3000/api/formation/${id}`, updatedFormation);
+        const response = await axios.put(`http://localhost:4000/api/formation/${id}`, updatedFormation);
         getFormations();
         // Traitez la réponse ici (si nécessaire)
         console.log("Formation mise à jour avec succès :", response.data);
@@ -48,7 +48,7 @@ function App() {
 // Methode de Supréssion d'une formation
 const deletFormation = async (id) => {
   try {
-    const response = await axios.delete(`http://localhost:3000/api/formation/${id}`);
+    const response = await axios.delete(`http://localhost:4000/api/formation/${id}`);
     console.log('Ressource supprimée avec succès:', response.data);
     getFormations();
   } catch (error) {
