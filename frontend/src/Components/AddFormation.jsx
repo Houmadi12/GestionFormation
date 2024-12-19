@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import Bouton from "./Bouton";
 
-function AddFormation({ close, controlleBtn, addData, updatedata, selectedFormation }) {
+function AddFormation({ close, controlleBtn, addData, updatedata, selectedFormation, btncontroller }) {
     const date = new Date().toLocaleDateString();
 
-    // State unique pour tout le formulaire
     // State initial pour tout le formulaire
     const initialFormState = {
         formation: "",
@@ -12,8 +11,8 @@ function AddFormation({ close, controlleBtn, addData, updatedata, selectedFormat
         nombreUtil: "",
         thematique: "",
         prix: "",
-        dateCreation: date,
-        dateModification: date,
+        dateCreation: date, // Date actuelle pour une nouvelle formation
+        dateModification: date, // Date actuelle
     };
 
     const [formData, setFormData] = useState(initialFormState);
@@ -27,11 +26,12 @@ function AddFormation({ close, controlleBtn, addData, updatedata, selectedFormat
                 nombreUtil: selectedFormation.nbrUtilMax,
                 thematique: selectedFormation.themForm,
                 prix: selectedFormation.prix,
-                dateCreation: new Date(selectedFormation.dateAjout).toLocaleDateString(),
-                dateModification: new Date(selectedFormation.dateModif).toLocaleDateString(),
+                dateCreation: selectedFormation.dateAjout, // Garde la date d'ajout
+                dateModification: new Date().toLocaleDateString(), // Date actuelle
             });
+
         }
-    }, [selectedFormation]); // Lorsque selectedFormation change, on met à jour le formulaire
+    }, [selectedFormation]); // Mettre à jour uniquement quand selectedFormation change
 
     // Gestion des changements dans les champs
     const handleChange = (e) => {
@@ -42,32 +42,41 @@ function AddFormation({ close, controlleBtn, addData, updatedata, selectedFormat
         }));
     };
 
-    // Gestion de la soumission du formulaire
-    const handleSubmit = (e) => {
-        e.preventDefault(); // Empêche le rechargement de la page
-      
-        // Conversion des données avant l'envoi à l'API
+const handleSubmit = (e) => {
+    e.preventDefault(); // Empêche le rechargement de la page
+
+    // console.log("Données avant envoi :", newFormation);
+
+    if (controlleBtn) {
         const newFormation = {
             nomForm: formData.formation,
-            dateForm: formData.dateFormation,  // Conversion en ISO
-            nbrUtilMax: parseInt(formData.nombreUtil),  // Conversion en nombre entier
+            dateForm: new Date().toISOString(),
+            nbrUtilMax: parseInt(formData.nombreUtil),
             themForm: formData.thematique,
-            prix: parseFloat(formData.prix),  // Conversion en nombre flottant
-            dateAjout: new Date().toISOString(),  // Date actuelle en ISO
-            dateModif: new Date().toISOString(),  // Date actuelle en ISO
+            prix: parseFloat(formData.prix),
+            dateAjout: new Date().toISOString(),
+            dateModif: new Date().toISOString(),
         };
+        // En mode ajout, on appelle addData pour ajouter la nouvelle formation
+        addData(newFormation);
+    } else {
+        const newFormation = {
+            nomForm: formData.formation,
+            dateForm: formData.dateFormation ,
+            nbrUtilMax: parseInt(formData.nombreUtil),
+            themForm: formData.thematique,
+            prix: parseFloat(formData.prix),
+            dateAjout: formData.dateCreation ,
+            dateModif: new Date().toISOString(),
+        };
+        updatedata(selectedFormation._id, newFormation);
+    }
 
-        if (controlleBtn) {
-            // En mode ajout, on appelle addData pour ajouter la nouvelle formation
-            addData(newFormation);
-        } else {
-            updatedata(selectedFormation._id,newFormation);
-        }
+    setFormData(initialFormState);
+    btncontroller(true);
+    close();
+};
 
-        // Réinitialiser le formulaire
-        setFormData(initialFormState);
-        close();
-    };
 
     return (
         <div className="flex fixed bg-black bg-opacity-60 top-0 right-0 left-0 z-50 justify-center items-center w-full min-h-screen">
@@ -79,7 +88,7 @@ function AddFormation({ close, controlleBtn, addData, updatedata, selectedFormat
                         </h3>
                         <Bouton
                             classe="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
-                            text={
+                            text={(
                                 <svg
                                     className="w-3 h-3"
                                     aria-hidden="true"
@@ -95,8 +104,11 @@ function AddFormation({ close, controlleBtn, addData, updatedata, selectedFormat
                                         d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                                     />
                                 </svg>
-                            }
-                            onClick={close}
+                            )}
+                            onClick={()=>{
+                                close()
+                                btncontroller(true)
+                            }}
                         />
                     </div>
 
@@ -213,49 +225,12 @@ function AddFormation({ close, controlleBtn, addData, updatedata, selectedFormat
                                     />
                                 </div>
                             </div>
-                            <div className="flex gap-4">
-                                <div className="md:w-6/12">
-                                    <label
-                                        htmlFor="dateModification"
-                                        className="block mb-2 text-sm font-medium text-gray-900"
-                                    >
-                                        Date de modification
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="dateModification"
-                                        id="dateModification"
-                                        disabled
-                                        className="bg-gray-300 border border-gray-300 text-black text-sm rounded-lg block w-full p-2.5"
-                                        value={formData.dateModification}
-                                    />
-                                </div>
-                            </div>
-                            {controlleBtn ? (
-                                <button
-                                    type="submit"
-                                    className="w-full text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                                >
-                                    Enregistrer une formation
-                                </button>
-                            ) : (
-                                <div className="flex justify-around">
-                                    <button
-                                        type="submit"
-                                        className="w-2/5 text-white bg-orange-600 hover:bg-orange-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                                    >
-                                        Modifier
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="w-2/5 text-white bg-red-700 hover:bg-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                                        onClick={close}
-                                    >
-                                        Annuler
-                                    </button>
-                                </div>
-
-                            )}
+                            <button
+                                type="submit"
+                                className="w-full text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                            >
+                                {controlleBtn ? "Enregistrer une formation" : "Modifier"}
+                            </button>
                         </form>
                     </div>
                 </div>

@@ -40,7 +40,7 @@ function Formation({id,titre, thematique, prix, date, isOpen, deleteData}) {
                 </div>
                 <div className="flex justify-between pt-4">
                     <Bouton
-                        text="Modification"
+                        text="Modifier"
                         classe="text-white bg-orange-600 hover:bg-orange-800 font-medium rounded-lg text-sm px-2 py-1.5 text-center"
                         onClick={() => isOpen()}
                     />
